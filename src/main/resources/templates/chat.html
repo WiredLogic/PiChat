@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>PiChat Client</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        h1, h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        form {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #ccc;
+        }
+
+        label {
+            display: block;
+            margin-top: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 1rem;
+            margin-right: 0.5rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+
+        .status {
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: #f4f4f4;
+            border-left: 4px solid #888;
+        }
+
+        ul {
+            padding-left: 1.2rem;
+        }
+
+        li {
+            margin-bottom: 0.4rem;
+        }
+
+        .message-box {
+            border: 1px solid #ccc;
+            padding: 1rem;
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/chat.css}">
+</head>
+<body>
+    <h1>PiChat Client</h1>
+
+    <div class="status" th:text="${statusMessage}">Status appears here.</div>
+
+    <form th:action="@{/send}" th:object="${messageForm}" method="post">
+        <h2>Send Message</h2>
+
+        <label for="serverUrl">Server URL</label>
+        <input id="serverUrl" type="text" th:field="*{serverUrl}" placeholder="http://192.168.1.50:45123" />
+
+        <label for="content">Message</label>
+        <input id="content" type="text" th:field="*{content}" placeholder="Type your message" />
+
+        <button type="submit">Send</button>
+    </form>
+
+    <form th:action="@{/refresh}" th:object="${messageForm}" method="post">
+        <h2>Refresh Messages</h2>
+
+        <input type="hidden" th:field="*{serverUrl}" />
+        <button type="submit">Refresh</button>
+    </form>
+
+    <div class="message-box">
+        <h2>Messages</h2>
+        <div class="chat-box">
+            <div th:each="message : ${messages}"
+                th:class="${message.senderIp == clientIp} ? 'chat-row mine' : 'chat-row theirs'">
+
+                <div th:class="${message.senderIp == clientIp} ? 'chat-message mine-message' : 'chat-message their-message'">
+
+                    <div class="chat-meta">
+                        <span th:text="${message.senderIp}">IP</span>
+                        |
+                        <span th:text="${#temporals.format(message.timestamp, 'HH:mm:ss')}">time</span>
+                    </div>
+
+                    <div th:text="${message.content}">Message</div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+</body>
+</html>
+
+<script>
+    const chatBox = document.querySelector('.chat-box');
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
