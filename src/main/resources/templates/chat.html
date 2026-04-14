@@ -88,32 +88,68 @@
         <button type="submit">Refresh</button>
     </form>
 
-    <div class="chat-box">
-        <div th:each="message : ${messages}"
-            th:class="${message.senderName == currentSenderName} ? 'chat-row mine' : 'chat-row theirs'">
-
-            <div th:class="${message.senderName == currentSenderName} ? 'chat-message mine-message' : 'chat-message their-message'">
-
-                <div class="chat-meta">
-                    <span th:text="${message.senderName}">name</span>
-                    |
-                    <span th:text="${message.senderIp}">ip</span>
-                    |
-                    <span th:text="${#temporals.format(message.timestamp, 'HH:mm:ss')}">time</span>
-                </div>
-
-                <div th:text="${message.content}">Message</div>
-            </div>
-        </div>
-    </div>
+    <div class="chat-box"></div>
 </div>
     </div>
 </body>
 </html>
 
 <script>
-    const chatBox = document.querySelector('.chat-box');
-    if (chatBox) {
+    const chatBox = document.getElementById("chatBox");
+
+    function getServerUrl() {
+        return document.getElementById("serverUrl").value;
+    }
+
+    function getSenderName() {
+        return document.getElementById("senderName").value;
+    }
+
+    function renderMessages(messages) {
+        chatBox.innerHTML = "";
+
+        messages.forEach(msg => {
+            const row = document.createElement("div");
+
+            const isMine = msg.senderName === getSenderName();
+
+            row.className = isMine ? "chat-row mine" : "chat-row theirs";
+
+            const bubble = document.createElement("div");
+            bubble.className = isMine ? "chat-message mine-message" : "chat-message their-message";
+
+            const meta = document.createElement("div");
+            meta.className = "chat-meta";
+            const time = new Date(msg.timestamp).toLocaleTimeString();
+            meta.textContent = `${msg.senderName} | ${msg.senderIp} | ${time}`;
+            const content = document.createElement("div");
+            content.textContent = msg.content;
+
+            bubble.appendChild(meta);
+            bubble.appendChild(content);
+            row.appendChild(bubble);
+
+            chatBox.appendChild(row);
+        });
+
         chatBox.scrollTop = chatBox.scrollHeight;
     }
+
+    async function fetchMessages() {
+        const serverUrl = encodeURIComponent(getServerUrl());
+
+        try {
+            const response = await fetch(`/api/messages?serverUrl=${serverUrl}`);
+            const data = await response.json();
+            renderMessages(data);
+        } catch (e) {
+            console.error("Failed to fetch messages", e);
+        }
+    }
+
+    // Poll every 2 seconds
+    setInterval(fetchMessages, 2000);
+
+    // Initial load
+    fetchMessages();
 </script>

@@ -81,4 +81,10 @@ public class ChatPageController {
 
         return "chat";
     }
+
+    @GetMapping("/api/messages")
+    @ResponseBody
+    public List<ChatMessage> apiMessages(@RequestParam String serverUrl) {
+        return chatServerClient.getMessages(serverUrl);
+    }
 }
