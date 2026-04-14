@@ -31,12 +31,16 @@ public class ChatServerClient {
         }
     }
 
-    public String sendMessage(String serverUrl, String content) {
+    public String sendMessage(String serverUrl, String senderName, String content) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            Map<String, String> body = Map.of("content", content);
+            Map<String, String> body = Map.of(
+                    "senderName", senderName,
+                    "content", content
+            );
+
             HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
 
             ResponseEntity<Void> response = restTemplate.exchange(
@@ -56,7 +60,6 @@ public class ChatServerClient {
         if (serverUrl == null) {
             return "";
         }
-
         return serverUrl.trim().replaceAll("/+$", "");
     }
 }

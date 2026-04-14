@@ -3,12 +3,21 @@ package com.wiredlogic.pichatclient.model;
 import java.time.LocalDateTime;
 
 public class ChatMessage {
-
+    private String senderName;
     private String content;
     private String senderIp;
     private LocalDateTime timestamp;
 
-    public ChatMessage() {}
+    public ChatMessage() {
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
 
     public String getContent() {
         return content;

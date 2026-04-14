@@ -73,6 +73,9 @@
         <label for="serverUrl">Server URL</label>
         <input id="serverUrl" type="text" th:field="*{serverUrl}" placeholder="http://192.168.1.50:45123" />
 
+        <label for="senderName">Sender Name</label>
+        <input id="senderName" type="text" th:field="*{senderName}" placeholder="alice" />
+
         <label for="content">Message</label>
         <input id="content" type="text" th:field="*{content}" placeholder="Type your message" />
 
@@ -80,29 +83,26 @@
     </form>
 
     <form th:action="@{/refresh}" th:object="${messageForm}" method="post">
-        <h2>Refresh Messages</h2>
-
         <input type="hidden" th:field="*{serverUrl}" />
+        <input type="hidden" th:field="*{senderName}" />
         <button type="submit">Refresh</button>
     </form>
 
-    <div class="message-box">
-        <h2>Messages</h2>
-        <div class="chat-box">
-            <div th:each="message : ${messages}"
-                th:class="${message.senderIp == clientIp} ? 'chat-row mine' : 'chat-row theirs'">
+    <div class="chat-box">
+        <div th:each="message : ${messages}"
+            th:class="${message.senderName == currentSenderName} ? 'chat-row mine' : 'chat-row theirs'">
 
-                <div th:class="${message.senderIp == clientIp} ? 'chat-message mine-message' : 'chat-message their-message'">
+            <div th:class="${message.senderName == currentSenderName} ? 'chat-message mine-message' : 'chat-message their-message'">
 
-                    <div class="chat-meta">
-                        <span th:text="${message.senderIp}">IP</span>
-                        |
-                        <span th:text="${#temporals.format(message.timestamp, 'HH:mm:ss')}">time</span>
-                    </div>
-
-                    <div th:text="${message.content}">Message</div>
-
+                <div class="chat-meta">
+                    <span th:text="${message.senderName}">name</span>
+                    |
+                    <span th:text="${message.senderIp}">ip</span>
+                    |
+                    <span th:text="${#temporals.format(message.timestamp, 'HH:mm:ss')}">time</span>
                 </div>
+
+                <div th:text="${message.content}">Message</div>
             </div>
         </div>
     </div>

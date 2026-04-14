@@ -7,8 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 
 @Controller
@@ -23,17 +21,19 @@ public class ChatPageController {
     @GetMapping("/")
     public String showChatPage(
             @RequestParam(name = "serverUrl", required = false, defaultValue = "http://localhost:45123") String serverUrl,
+            @RequestParam(name = "senderName", required = false, defaultValue = "anon") String senderName,
             Model model
     ) {
         MessageForm form = new MessageForm();
         form.setServerUrl(serverUrl);
+        form.setSenderName(senderName);
 
         List<ChatMessage> messages = chatServerClient.getMessages(serverUrl);
 
         model.addAttribute("messageForm", form);
         model.addAttribute("messages", messages);
         model.addAttribute("statusMessage", "");
-        model.addAttribute("clientIp", getLocalIpAddress());
+        model.addAttribute("currentSenderName", senderName);
 
         return "chat";
     }
@@ -44,11 +44,14 @@ public class ChatPageController {
 
         if (messageForm.getServerUrl() == null || messageForm.getServerUrl().isBlank()) {
             statusMessage = "Server URL is required.";
+        } else if (messageForm.getSenderName() == null || messageForm.getSenderName().isBlank()) {
+            statusMessage = "Sender name is required.";
         } else if (messageForm.getContent() == null || messageForm.getContent().isBlank()) {
             statusMessage = "Message content is required.";
         } else {
             statusMessage = chatServerClient.sendMessage(
                     messageForm.getServerUrl(),
+                    messageForm.getSenderName().trim(),
                     messageForm.getContent().trim()
             );
         }
@@ -57,11 +60,12 @@ public class ChatPageController {
 
         MessageForm freshForm = new MessageForm();
         freshForm.setServerUrl(messageForm.getServerUrl());
+        freshForm.setSenderName(messageForm.getSenderName());
 
         model.addAttribute("messageForm", freshForm);
         model.addAttribute("messages", messages);
         model.addAttribute("statusMessage", statusMessage);
-        model.addAttribute("clientIp", getLocalIpAddress());
+        model.addAttribute("currentSenderName", messageForm.getSenderName());
 
         return "chat";
     }
@@ -73,16 +77,8 @@ public class ChatPageController {
         model.addAttribute("messageForm", messageForm);
         model.addAttribute("messages", messages);
         model.addAttribute("statusMessage", "Messages refreshed.");
-        model.addAttribute("clientIp", getLocalIpAddress());
+        model.addAttribute("currentSenderName", messageForm.getSenderName());
 
         return "chat";
-    }
-
-    private String getLocalIpAddress() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            return "unknown";
-        }
     }
 }
