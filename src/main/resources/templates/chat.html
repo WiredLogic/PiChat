@@ -88,24 +88,7 @@
         <button type="submit">Refresh</button>
     </form>
 
-    <div class="chat-box">
-        <div th:each="message : ${messages}"
-            th:class="${message.senderName == currentSenderName} ? 'chat-row mine' : 'chat-row theirs'">
-
-            <div th:class="${message.senderName == currentSenderName} ? 'chat-message mine-message' : 'chat-message their-message'">
-
-                <div class="chat-meta">
-                    <span th:text="${message.senderName}">name</span>
-                    |
-                    <span th:text="${message.senderIp}">ip</span>
-                    |
-                    <span th:text="${#temporals.format(message.timestamp, 'HH:mm:ss')}">time</span>
-                </div>
-
-                <div th:text="${message.content}">Message</div>
-            </div>
-        </div>
-    </div>
+    <div class="chat-box" id="chatBox"></div>
 </div>
     </div>
 </body>
